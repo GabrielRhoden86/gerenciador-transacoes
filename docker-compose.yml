@@ -10,9 +10,9 @@ services:
       - db
     networks:
       - app-network
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
+    #dns:
+      #- 8.8.8.8
+      #- 1.1.1.1
 
   webserver:
     image: nginx:alpine
@@ -50,9 +50,9 @@ services:
       - /app/node_modules
     networks:
       - app-network
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
+    #dns:
+      #- 8.8.8.8
+      #- 1.1.1.1
     
 
 networks:
