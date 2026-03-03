@@ -23,7 +23,7 @@
                 item-value="value"
                 variant="outlined"
                 density="compact"
-                :rules="[v => !!v || 'Selecione o tipo']"
+                :rules="typeRules"
               />
             </v-col>
 
@@ -179,6 +179,7 @@ const submitForm = async () => {
   closeDialog();
 };
 
+const typeRules = [(v: any) => !!v || 'Selecione o tipo'];
 const amountRules = [(v: any) => !!v || 'Obrigatório', (v: number) => v > 0 || 'Inválido'];
 const descriptionRules = [(v: string) => !!v || 'Obrigatório'];
 </script>

@@ -5,6 +5,9 @@ import { createPinia } from 'pinia' // Adicione isso
 
 // Styles
 import 'unfonts.css'
+
+// src/main.ts
+// @ts-ignore
 import 'vuetify/styles'
 
 const app = createApp(App)
