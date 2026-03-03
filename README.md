@@ -1,4 +1,4 @@
-#####  Sistema de Gerenciamento de Transações
+####  Sistema de Gerenciamento de Transações
 
 # Descrição
 
@@ -6,7 +6,6 @@ Sistema de gestão financeira para clientes, permitindo o controle de créditos 
 
 O sistema é uma ferramenta administrativa, portanto clientes não possuem acesso direto.
 __________________________________________Usuários_________________________________________
-
 # Login de usuários
 
 Dois perfis de usuário:
