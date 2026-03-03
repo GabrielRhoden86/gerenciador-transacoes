@@ -14,14 +14,18 @@ jobs:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
 
-      - name: 📄 Copiar .env
-        run: cp backend/.env.example backend/.env
-
       - name: 🔨 Build containers
         run: docker compose -f docker-compose.ci.yml build --no-cache
 
       - name: 🚀 Subir containers
         run: docker compose -f docker-compose.ci.yml up -d
+
+      - name: 📄 Configurar Permissões e .env
+        run: |
+          cp backend/.env.example backend/.env
+          # Rodamos dentro do container para garantir que o usuário do PHP tenha acesso
+          docker exec -u root laravel-app chmod 777 .env
+          docker exec -u root laravel-app chmod -R 777 storage bootstrap/cache
 
       - name: ⏳ Esperar MySQL ficar pronto
         run: |
