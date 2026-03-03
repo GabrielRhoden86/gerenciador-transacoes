@@ -18,13 +18,16 @@ jobs:
         run: cp backend/.env.example backend/.env
 
       - name: �� Build containers
-        run: docker compose build --no-cache
+        run: docker compose -f docker-compose.yml build --no-cache
 
       - name: 🚀 Subir containers
-        run: docker compose up -d
+        run: docker compose -f docker-compose.yml up -d
 
-      - name: ⏳ Aguardar banco iniciar
-        run: sleep 15
+      - name: ⏳ Esperar MySQL ficar pronto
+        run: |
+          until docker exec laravel-db mysqladmin ping -h"localhost" --silent; do
+            sleep 2
+          done
 
       - name: 🔐 Gerar APP_KEY
         run: docker exec laravel-app php artisan key:generate
@@ -43,4 +46,4 @@ jobs:
 
       - name: 🛑 Derrubar containers
         if: always()
-        run: docker compose down
+        run: docker compose -f docker-compose.yml down
