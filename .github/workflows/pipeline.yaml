@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
+        with:
+          submodules: false
 
       - name: 🔨 Build containers
         run: docker compose -f docker-compose.ci.yml build --no-cache
