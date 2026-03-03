@@ -8,6 +8,8 @@ services:
     container_name: laravel-app
     depends_on:
       - db
+    volumes:
+      - ./backend:/var/www/html
     networks:
       - app-network
 
