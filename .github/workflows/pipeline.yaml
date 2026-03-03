@@ -1,3 +1,4 @@
+# Este arquivo define o pipeline de CI para o projeto Gerenciador Transações.
 name: CI - Gerenciador Transações
 
 on:
