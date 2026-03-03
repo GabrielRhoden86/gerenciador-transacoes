@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\AuthController;
-use App\Http\Middleware\CheckAdmin;\
+use App\Http\Middleware\CheckAdmin;
 
 Route::post('/login', [AuthController::class, 'login']);
 
