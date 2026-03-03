@@ -22,10 +22,13 @@ jobs:
 
       - name: 📄 Configurar Permissões e .env
         run: |
+          # 1. Cria o arquivo no Runner (onde o checkout baixou o código)
           cp backend/.env.example backend/.env
-          # Rodamos dentro do container para garantir que o usuário do PHP tenha acesso
-          docker exec -u root laravel-app chmod 777 .env
-          docker exec -u root laravel-app chmod -R 777 storage bootstrap/cache
+          
+          # 2. Muda a permissão usando o caminho absoluto dentro do container
+          # O comando 'docker exec' precisa saber onde o arquivo está NO CONTAINER
+          docker exec -u root laravel-app chmod 777 /var/www/html/.env
+          docker exec -u root laravel-app chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 
       - name: ⏳ Esperar MySQL ficar pronto
         run: |
