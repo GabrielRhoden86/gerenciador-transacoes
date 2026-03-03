@@ -5,7 +5,8 @@
 Sistema de gestão financeira para clientes, permitindo o controle de créditos e débitos, com regras de saldo, histórico de transações e controle de acesso por perfil de usuário.
 
 O sistema é uma ferramenta administrativa, portanto clientes não possuem acesso direto.
-__________________________________________Usuários_________________________________________
+
+__________________________________________Usuários__________________________________________________________
 # Login de usuários
 
 Dois perfis de usuário:
@@ -19,23 +20,23 @@ _________________________________________Passo a Passo para Rodar o Projeto_____
 - Certifique -se 
 Porta 8000 e 3000 livres
 
-* linux:
-cp .env.example .env
+  * linux:
+  cp .env.example .env
 
-* windows:
-copy .env.example .env
+  * windows:
+  cd copy .env.example .env
 
-  
-1. Subir os containers:
+    
+  1. Subir os containers:
 
-docker compose build --no-cache
-docker compose up -d
+  docker compose build --no-cache
+  docker compose up -d
 
-2. Executar as migrations
-docker exec -it laravel-app php artisan migrate
+  2. Executar as migrations
+  docker exec -it laravel-app php artisan migrate
 
-3. Popular o banco com dados de teste
-docker exec -it laravel-app php artisan db:seed
+  3. Popular o banco com dados de teste
+  docker exec -it laravel-app php artisan db:seed
 
 ______________________________________________________Acesso ao Sistema____________________________________________
 
