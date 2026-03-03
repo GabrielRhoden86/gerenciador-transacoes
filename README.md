@@ -5,7 +5,6 @@
 Sistema de gestão financeira para clientes, permitindo o controle de créditos e débitos, com regras de saldo, histórico de transações e controle de acesso por perfil de usuário.
 
 O sistema é uma ferramenta administrativa, portanto clientes não possuem acesso direto.
-
 __________________________________________Usuários_________________________________________
 
 # Login de usuários
