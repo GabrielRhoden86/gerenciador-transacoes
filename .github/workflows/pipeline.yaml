@@ -91,8 +91,7 @@ jobs:
         if: always()
         run: docker compose -f docker-compose.yml down
 
-
-  # --- JOB 3: DEPLOY (Só roda se o Job 1 e 2 passarem) ---
+  # --- JOB 3: DEPLOY (Só roda se o Job 1 e 2 passarem) ------
   deploy:
     runs-on: ubuntu-latest
     needs: [laravel-api, frontend-build] 
