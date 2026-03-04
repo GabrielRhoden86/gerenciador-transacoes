@@ -25,8 +25,8 @@ jobs:
       - name: 📄 Configurar Permissões e .env
         run: |
           cp backend/.env.example backend/.env
-          docker exec -u root laravel-app chmod 775 /var/www/html/.env
-          docker exec -u root laravel-app chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+          docker exec -u root laravel-app chmod 777 /var/www/html/.env
+          docker exec -u root laravel-app chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 
       - name: ⏳ Esperar MySQL ficar pronto
         run: |
