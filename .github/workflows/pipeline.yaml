@@ -36,9 +36,6 @@ jobs:
 
       - name: 📦 Instalar dependências
         run: docker exec -u root laravel-app composer install --no-interaction --prefer-dist --no-scripts
-
-      - name: 🔐 Gerar APP_KEY
-        run: docker exec laravel-app php artisan key:generate
       
       - name: 🛠 Otimizar e Discover
         run: |
@@ -54,6 +51,14 @@ jobs:
       - name: 🛑 Derrubar containers 
         if: always() # Garante que roda mesmo se algum passo falhar
         run: docker compose -f docker-compose.yml down
+
+        - name: Cache Composer dependencies #cache pasta vendor
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
   #--- JOB 2: TESTE/BUILD FRONTEND (Node/Vuetify) ---
   frontend-build:
