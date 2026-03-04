@@ -52,7 +52,7 @@ jobs:
         if: always() # Garante que roda mesmo se algum passo falhar
         run: docker compose -f docker-compose.yml down
 
-        - name: Cache Composer dependencies #cache pasta vendor
+      - name: Cache Composer dependencies #cache pasta vendor
         uses: actions/cache@v3
         with:
           path: vendor
