@@ -36,7 +36,7 @@ class ClientServiceTest extends TestCase
         $service = new ClientService($repository);
         $result = $service->getClientTransactions(1);
 
-        // Asserções
+        // VALIDAÇÕES VERIFICANDO SE O RESULTADO ESTÁ CORRETO
         $this->assertEquals(60.0, $result['total_balance']);
         $this->assertEquals('John Doe', $result['client']['name']);
     }

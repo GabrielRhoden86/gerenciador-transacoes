@@ -74,6 +74,10 @@ jobs:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
 
+      - name: 📄 Configurar Permissões e .env
+        run: |
+          cp frontend/.env.example frontend/.env
+
       - name: 🔨 Build apenas o Frontend
         # Builda apenas o serviço frontend para não perder tempo com o MySQL aqui
         run: docker compose -f docker-compose.yml build frontend
@@ -81,6 +85,7 @@ jobs:
       - name: 🏗️ Rodar Build de Produção dentro do Container
         # Usa o 'run' para criar o container temporário e rodar o build do Vite/Vuetify
         run: docker compose -f docker-compose.yml run frontend npm run build
+        
 
       - name: 🛑 Limpeza
         if: always()
@@ -100,7 +105,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }} # IP ou domínio do servidor de produção
           username: ${{ secrets.DEPLOY_USER }} # Usuário SSH (ex: root ou deploy)
           key: ${{ secrets.DEPLOY_KEY }} # Chave privada SSH (adicione no GitHub Secrets)
-          port: ${{ secrets.DEPLOY_PORT || 22 }} # Porta SSH, padrão 22
+          port: ${{ secrets.DEPLOY_PORT || 22 }} 
           script: |
             cd /var/www/gerenciador-transacoes
             
