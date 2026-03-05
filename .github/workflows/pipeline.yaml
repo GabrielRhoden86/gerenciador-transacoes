@@ -106,7 +106,7 @@
               sudo chmod 666 /var/run/docker.sock
               
               # 3. Forçar o Git a usar a sua chave específica da VPS
-              #export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_oracle -o StrictHostKeyChecking=no"
+              export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_oracle -o StrictHostKeyChecking=no"
               
               # 4. Atualizar código
               git pull origin master
