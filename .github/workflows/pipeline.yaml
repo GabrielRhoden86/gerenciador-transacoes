@@ -14,7 +14,17 @@
         - name: 📥 Checkout código
           uses: actions/checkout@v4
           with:
-            submodules: false
+            submodules: false 
+        - name: 🔑 Configurar SSH e Agent
+          run: |
+            mkdir -p ~/.ssh
+            echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+            chmod 600 ~/.ssh/id_ed25519
+            # Adiciona o host aos conhecidos para evitar o erro de "Host key verification failed"
+            ssh-keyscan -p ${{ secrets.DEPLOY_PORT }} -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+            # Inicia o agente e adiciona a chave
+            eval $(ssh-agent -s)
+            ssh-add ~/.ssh/id_ed25519
             
         - name: 🔨 Build containers
           run: docker compose -f docker-compose.yml build --no-cache
