@@ -68,7 +68,7 @@
             restore-keys: |
               ${{ runner.os }}-composer-
 
-    #--- JOB 2: TESTE/BUILD FRONTEND (Node/Vuetify) ---
+    #--- JOB 2: TESTE/BUILD FRONTEND (Node/Vuetify) ----
     frontend-build: 
       runs-on: ubuntu-latest
       steps:
