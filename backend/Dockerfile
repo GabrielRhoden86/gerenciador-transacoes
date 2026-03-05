@@ -2,9 +2,6 @@ FROM php:8.2-fpm
 
 # 1. Instala dependências do sistema
 RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
     libzip-dev \
     libonig-dev \
     libxml2-dev \
@@ -14,8 +11,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql pdo_sqlite zip bcmath mbstring xml \
+    && docker-php-ext-install pdo pdo_mysql pdo_sqlite zip bcmath mbstring xml \
     && pecl install pcov \
     && docker-php-ext-enable pcov \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
