@@ -17,10 +17,12 @@ jobs:
           submodules: false 
 
       - name: 🔨 Build containers
-        run: docker-compose-f docker-compose.yml build --no-cache
+        # CORRIGIDO: Adicionado espaço entre o comando e o -f
+        run: docker compose -f docker-compose.yml build --no-cache
 
       - name: 🚀 Subir containers
-        run: docker-compose-f docker-compose.yml up -d
+        # CORRIGIDO: Adicionado espaço entre o comando e o -f
+        run: docker compose -f docker-compose.yml up -d
 
       - name: 📄 Configurar Permissões e .env
         run: |
@@ -50,7 +52,8 @@ jobs:
 
       - name: 🛑 Derrubar containers 
         if: always()
-        run: docker-compose-f docker-compose.yml down
+        # CORRIGIDO: Adicionado espaço entre o comando e o -f
+        run: docker compose -f docker-compose.yml down
 
   # --- JOB 2: BUILD FRONTEND ---
   frontend-build: 
@@ -63,14 +66,16 @@ jobs:
         run: cp frontend/.env.example frontend/.env
 
       - name: 🔨 Build apenas o Frontend
-        run: docker-compose-f docker-compose.yml build frontend
+        # CORRIGIDO: Adicionado espaço entre o comando e o -f
+        run: docker compose -f docker-compose.yml build frontend
 
       - name: 🏗️ Rodar Build de Produção
-        run: docker-compose-f docker-compose.yml run frontend npm run build
+        run: docker compose -f docker-compose.yml run frontend npm run build
 
       - name: 🛑 Limpeza
         if: always()
-        run: docker-compose-f docker-compose.yml down
+        # CORRIGIDO: Adicionado espaço entre o comando e o -f
+        run: docker compose -f docker-compose.yml down
 
   # --- JOB 3: DEPLOY REAL NA ORACLE CLOUD ---
   deploy:
@@ -98,11 +103,12 @@ jobs:
             echo "--- Atualizando código ---"
             git pull origin master
             
-            echo "--- Build e Up ---"
-            docker-composeup -d --build
+            echo "--- Build e Up na VPS ---"
+            # CORRIGIDO: docker composeup -> docker-compose up (com hífen para sua VPS e espaço)
+            docker-compose up -d --build
             
             echo "--- Aguardando containers ---"
-            sleep 5
+            sleep 10
             
             echo "--- Laravel Commands ---"
             docker exec laravel-app php artisan migrate --force
