@@ -1,135 +1,114 @@
-  name: CI/CD - Gerenciador Transações
+name: CI/CD - Gerenciador Transações
 
-  on:
-    push:
-      branches: [ master ]
-    pull_request:
-      branches: [ master ]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
-  jobs:
-    # --- JOB DE TESTES ---
-    laravel-api:
-      runs-on: ubuntu-latest
-      steps:
-        - name: 📥 Checkout código
-          uses: actions/checkout@v4
-          with:
-            submodules: false 
-        - name: 🔑 Configurar SSH e Agent
-          run: |
-            mkdir -p ~/.ssh
-            # O uso de 'EOF' com aspas simples evita expansão de variáveis indesejadas
-            cat << 'EOF' > ~/.ssh/id_ed25519
-            ${{ secrets.DEPLOY_KEY }}
-            EOF
-            chmod 600 ~/.ssh/id_ed25519
-            
-        - name: 🔨 Build containers
-          run: docker compose -f docker-compose.yml build --no-cache
+jobs:
+  # --- JOB 1: TESTES LARAVEL ---
+  laravel-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+        with:
+          submodules: false 
 
-        - name: 🚀 Subir containers
-          run: docker compose -f docker-compose.yml up -d
+      - name: 🔨 Build containers
+        run: docker compose -f docker-compose.yml build --no-cache
 
-        - name: 📄 Configurar Permissões e .env
-          run: |
-            cp backend/.env.example backend/.env
-            docker exec -u root laravel-app chmod 777 /var/www/html/.env
-            docker exec -u root laravel-app chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+      - name: 🚀 Subir containers
+        run: docker compose -f docker-compose.yml up -d
 
-        - name: ⏳ Esperar MySQL ficar pronto
-          run: |
-            until docker exec laravel-db mysqladmin ping -h"localhost" --silent; do
-              sleep 2
-            done
+      - name: 📄 Configurar Permissões e .env
+        run: |
+          cp backend/.env.example backend/.env
+          docker exec -u root laravel-app chmod 777 /var/www/html/.env
+          docker exec -u root laravel-app chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 
-        - name: 📦 Instalar dependências
-          run: docker exec -u root laravel-app composer install --no-interaction --prefer-dist --no-scripts
-        
-        - name: 🛠 Otimizar e Discover
-          run: |
-            docker exec laravel-app php artisan package:discover --ansi
-            docker exec laravel-app php artisan config:clear
+      - name: ⏳ Esperar MySQL ficar pronto
+        run: |
+          until docker exec laravel-db mysqladmin ping -h"localhost" --silent; do
+            sleep 2
+          done
 
-        - name: 🛠 Rodar migrations + seed
-          run: docker exec laravel-app php artisan migrate --seed
+      - name: 📦 Instalar dependências
+        run: docker exec -u root laravel-app composer install --no-interaction --prefer-dist --no-scripts
+      
+      - name: 🛠 Otimizar e Discover
+        run: |
+          docker exec laravel-app php artisan package:discover --ansi
+          docker exec laravel-app php artisan config:clear
 
-        - name: 🧪 Rodar testes com coverage
-          run: docker exec laravel-app php artisan test --coverage
+      - name: 🛠 Rodar migrations + seed
+        run: docker exec laravel-app php artisan migrate --seed
 
-        - name: 🛑 Derrubar containers 
-          if: always() # Garante que roda mesmo se algum passo falhar
-          run: docker compose -f docker-compose.yml down
+      - name: 🧪 Rodar testes com coverage
+        run: docker exec laravel-app php artisan test --coverage
 
-        - name: Cache Composer dependencies #cache pasta vendor
-          uses: actions/cache@v3
-          with:
-            path: vendor
-            key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-            restore-keys: |
-              ${{ runner.os }}-composer-
+      - name: 🛑 Derrubar containers 
+        if: always()
+        run: docker compose -f docker-compose.yml down
 
-    #--- JOB 2: TESTE/BUILD FRONTEND (Node/Vuetify) ----
-    frontend-build: 
-      runs-on: ubuntu-latest
-      steps:
-        - name: 📥 Checkout código
-          uses: actions/checkout@v4
+  # --- JOB 2: BUILD FRONTEND ---
+  frontend-build: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
 
-        - name: 📄 Configurar Permissões e .env
-          run: |
-            cp frontend/.env.example backend/.env
+      - name: 📄 Configurar .env Frontend
+        run: cp frontend/.env.example frontend/.env
 
-        - name: 🔨 Build apenas o Frontend
-          # Builda apenas o serviço frontend para não perder tempo com o MySQL aqui
-          run: docker compose -f docker-compose.yml build frontend
+      - name: 🔨 Build apenas o Frontend
+        run: docker compose -f docker-compose.yml build frontend
 
-        - name: 🏗️ Rodar Build de Produção dentro do Container
-          # Usa o 'run' para criar o container temporário e rodar o build do Vite/Vuetify
-          run: docker compose -f docker-compose.yml run frontend npm run build
+      - name: 🏗️ Rodar Build de Produção
+        run: docker compose -f docker-compose.yml run frontend npm run build
+
+      - name: 🛑 Limpeza
+        if: always()
+        run: docker compose -f docker-compose.yml down
+
+  # --- JOB 3: DEPLOY REAL NA ORACLE CLOUD ---
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [laravel-api, frontend-build] 
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - name: 🚀 Deploy via SSH Nativo
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
           
-
-        - name: 🛑 Limpeza
-          if: always()
-          run: docker compose -f docker-compose.yml down
-
-        # --- JOB 3: DEPLOY REAL NA ORACLE CLOUD ------
-   deploy:
-      runs-on: ubuntu-latest
-      needs: [laravel-api, frontend-build] 
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-      steps:
-        - name: 🚀 Deploy via SSH Nativo
-          env:
-            SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
-            SSH_HOST: ${{ secrets.DEPLOY_HOST }}
-            SSH_USER: ${{ secrets.DEPLOY_USER }}
-          run: |
-            mkdir -p ~/.ssh
-            echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-            chmod 600 ~/.ssh/id_ed25519
-            ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" << 'EOF'
+            set -e
+            cd /var/www/gerenciador-transacoes
             
-            ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" << 'EOF'
-              set -e
-              cd /var/www/gerenciador-transacoes
-              
-              # Tenta garantir permissão, mas ignora se falhar
-              sudo chmod 666 /var/run/docker.sock || true
-              
-              echo "--- Atualizando código ---"
-              git pull origin master
-              
-              echo "--- Build e Up ---"
-              docker compose up -d --build
-              
-              echo "--- Aguardando containers ---"
-              sleep 5
-              
-              echo "--- Laravel Commands ---"
-              docker exec laravel-app php artisan migrate --force
-              docker exec laravel-app php artisan config:cache
-              docker exec laravel-app php artisan route:cache
-              docker exec laravel-app php artisan view:cache
-              
-              echo "--- Sucesso ---"
-            EOF
+            sudo chmod 666 /var/run/docker.sock || true
+            
+            echo "--- Atualizando código ---"
+            git pull origin master
+            
+            echo "--- Build e Up ---"
+            docker compose up -d --build
+            
+            echo "--- Aguardando containers ---"
+            sleep 5
+            
+            echo "--- Laravel Commands ---"
+            docker exec laravel-app php artisan migrate --force
+            docker exec laravel-app php artisan config:cache
+            docker exec laravel-app php artisan route:cache
+            docker exec laravel-app php artisan view:cache
+            
+            echo "--- Sucesso ---"
+          EOF
