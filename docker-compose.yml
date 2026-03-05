@@ -37,24 +37,7 @@ services:
       - "3308:3306"
     networks:
       - app-network
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: vuetify-frontend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    networks:
-      - app-network
-    #dns:
-      #- 8.8.8.8
-      #- 1.1.1.1
-    
-
+      
 networks:
   app-network:
     driver: bridge
