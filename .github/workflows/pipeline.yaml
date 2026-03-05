@@ -95,9 +95,9 @@
           uses: appleboy/ssh-action@v1.0.3
           with:
             host: ${{ secrets.DEPLOY_HOST }}
-            username: ${{ secrets.DEPLOY_USER }}
+            username: ${{ secrets.DEPLOY_USER }} 
             key: ${{ secrets.DEPLOY_KEY }}
-            port: ${{ secrets.DEPLOY_PORT || 22 }} 
+            port: ${{ secrets.DEPLOY_PORT }}
             script: |
               # 1. Entrar na pasta
               cd /var/www/gerenciador-transacoes
@@ -106,7 +106,7 @@
               sudo chmod 666 /var/run/docker.sock
               
               # 3. Forçar o Git a usar a sua chave específica da VPS
-              export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_oracle -o StrictHostKeyChecking=no"
+              #export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_oracle -o StrictHostKeyChecking=no"
               
               # 4. Atualizar código
               git pull origin master
