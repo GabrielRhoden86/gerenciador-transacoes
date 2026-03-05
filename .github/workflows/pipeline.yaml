@@ -17,15 +17,15 @@ jobs:
           submodules: false 
 
       - name: 🔨 Build containers
-        # CORREÇÃO: O nome do arquivo é docker-compose.yml (com hífen)
+        # CORREÇÃO: O nome do arquivo é docker-compose.yml (com hífen)         # cp backend/.env.example backend/.env
+
         run: docker compose -f docker-compose.yml build --no-cache
 
       - name: 🚀 Subir containers
         run: docker compose -f docker-compose.yml up -d
 
-      - name: 📄 Configurar Permissões e .env
+      - name: 📄 Configurar Permissões e .env  
         run: |
-          cp backend/.env.example backend/.env
           docker exec -u root laravel-app chmod 777 /var/www/html/.env
           docker exec -u root laravel-app chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 

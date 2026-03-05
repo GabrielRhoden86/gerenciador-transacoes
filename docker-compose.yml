@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: laravel-app
     #volumes:
-    #  - ./backend:/var/www/html
+    #  - ./backend:/var/www/html   NÃO USAR VOLUME EM PRODUÇÃO 
     depends_on:
       - db
     networks:
