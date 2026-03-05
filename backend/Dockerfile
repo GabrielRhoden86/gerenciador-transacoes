@@ -30,7 +30,7 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --no-scripts --no-autoloader --prefer-dist
 
-# 4. Copia o restante do código da pasta backend
+# 4. Copia o restante do código da pasta backend ----
 COPY . .
 
 # 5. Otimiza o Autoload e ajusta permissões
