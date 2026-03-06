@@ -24,27 +24,24 @@ COPY .env.example .env
 # 2. Instala o Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# --- AJUSTE DE PERMISSÃO INICIAL ---
 WORKDIR /var/www/html
-RUN chown -R www-data:www-data /var/www/html
 
-# 3. Copia apenas arquivos de dependência primeiro (otimiza cache de camadas)
-COPY --chown=www-data:www-data composer.json composer.lock ./
-
-# Muda para o usuário www-data para instalar as dependências !!!!!!!!!!!
-USER www-data
-
+# 3. Copia as dependências (Sem o prefixo 'backend/')
+# Como o Dockerfile já está na pasta, o arquivo está "ao lado" dele
+COPY composer.json composer.lock ./
 RUN composer install --no-scripts --no-autoloader --prefer-dist
 
-# 4. Copia o restante do código com a permissão correta
-COPY --chown=www-data:www-data . .
+# 4. Copia o restante do código da pasta backend ----
+COPY . .
 
-# 5. Cria as pastas necessárias e limpa o cache
-# O sinalizador -p garante que não dê erro se a pasta já existir
-RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache \
-    && composer dump-autoload --optimize
+# 5. Otimiza o Autoload e ajusta permissões
+RUN composer dump-autoload --optimize \
+    && mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+USER www-data
 
 EXPOSE 9000
-##
+
 CMD ["php-fpm"]
