@@ -23,13 +23,16 @@ jobs:
       - name: 🚀 Subir containers
         run: docker compose -f docker-compose.yml up -d
 
-      - name: 📄 Configurar Permissões
+      - name: 📄 Setup environment
         run: |
-          docker exec -u root laravel-app mkdir -p storage/logs storage/framework/cache
+          docker exec -u root laravel-app mkdir -p storage/logs storage/framework/sessions storage/framework/views storage/framework/cache bootstrap/cache
           docker exec -u root laravel-app chown -R www-data:www-data storage bootstrap/cache
           docker exec -u root laravel-app chmod -R 775 storage bootstrap/cache
-          docker exec -u root laravel-app chmod 600 /var/www/html/.env
-          docker exec -u root laravel-app chmod 600 /var/www/html/storage /var/www/html/bootstrap/cache
+
+      - name: 🛠 Optimize Laravel
+        run: |
+          docker exec -u www-data laravel-app php artisan package:discover --ansi
+          docker exec -u www-data laravel-app php artisan config:clear
 
       - name: ⏳ Esperar MySQL ficar pronto
         run: |
