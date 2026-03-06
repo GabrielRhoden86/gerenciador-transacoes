@@ -29,7 +29,7 @@ RUN chown -R www-data:www-data /var/www/html
 # 3. Copia apenas arquivos de dependência primeiro (otimiza cache de camadas)
 COPY --chown=www-data:www-data composer.json composer.lock ./
 
-# Muda para o usuário www-data para instalar as dependências
+# Muda para o usuário www-data para instalar as dependências !!!!!!!!!!!
 USER www-data
 
 RUN composer install --no-scripts --no-autoloader --prefer-dist
