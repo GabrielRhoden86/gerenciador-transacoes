@@ -23,7 +23,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # --- AJUSTE DE PERMISSÃO INICIAL ---
-# Garante que o diretório de trabalho pertença ao usuário do servidor web antes de copiar os arquivos
 WORKDIR /var/www/html
 RUN chown -R www-data:www-data /var/www/html
 
