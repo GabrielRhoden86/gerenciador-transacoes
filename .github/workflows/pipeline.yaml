@@ -17,7 +17,6 @@ jobs:
           submodules: false 
 
       - name: 🔨 Build containers
-        # CORREÇÃO: O nome do arquivo é docker-compose.yml (com hífen) ### cp backend/.env.example backend/.env
 
         run: docker compose -f docker-compose.yml build --no-cache
 
@@ -26,8 +25,8 @@ jobs:
 
       - name: 📄 Configurar Permissões e .env  
         run: |
-          docker exec -u root laravel-app chmod 777 /var/www/html/.env
-          docker exec -u root laravel-app chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+          docker exec -u root laravel-app chmod 600 /var/www/html/.env
+          docker exec -u root laravel-app chmod 600 /var/www/html/storage /var/www/html/bootstrap/cache
 
       - name: ⏳ Esperar MySQL ficar pronto
         run: |
