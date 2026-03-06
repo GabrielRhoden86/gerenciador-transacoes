@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-enable pcov \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+COPY .env.example .env
+
 # 2. Instala o Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
