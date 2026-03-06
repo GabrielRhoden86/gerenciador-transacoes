@@ -1,0 +1,86 @@
+name: CI-CD-Gerenciador
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+concurrency:
+  group: production_deploy
+  cancel-in-progress: true
+
+jobs:
+  laravel-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build containers
+        run: docker compose build --no-cache
+
+      - name: Start containers
+        run: docker compose up -d
+
+      - name: Setup environment
+        run: |
+          docker exec laravel-app cp .env.example .env
+          docker exec -u root laravel-app chown -R www-data:www-data storage bootstrap/cache
+          docker exec -u root laravel-app chmod -R 775 storage bootstrap/cache
+
+      - name: Wait for MySQL
+        run: |
+          # Tentativa simples de esperar o banco estar pronto
+          sleep 15
+
+      - name: Install dependencies
+        run: docker exec laravel-app composer install --no-interaction --prefer-dist --no-scripts
+      
+      - name: Optimize Laravel
+        run: |
+          docker exec laravel-app php artisan package:discover --ansi
+          docker exec laravel-app php artisan config:clear
+
+      - name: Run Migrations
+        run: docker exec laravel-app php artisan migrate --seed
+
+      - name: Run Tests
+        run: docker exec laravel-app php artisan test
+
+      - name: Stop containers
+        if: always()
+        run: docker compose down
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [laravel-api] 
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - name: Deploy via SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          
+          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" << 'EOF'
+            set -e
+            cd /var/www/gerenciador-transacoes
+            
+            git pull origin master
+            docker compose up -d --build
+            
+            # Executa comandos de otimização no servidor
+            docker exec laravel-app php artisan migrate --force
+            docker exec laravel-app php artisan config:cache
+            docker exec laravel-app php artisan route:cache
+            docker exec laravel-app php artisan view:cache
+          EOF
+            
+            echo "--- ✅ Sucesso total! ---"
+          EOF
