@@ -45,5 +45,5 @@ RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framewor
     && composer dump-autoload --optimize
 
 EXPOSE 9000
-
+##
 CMD ["php-fpm"]
