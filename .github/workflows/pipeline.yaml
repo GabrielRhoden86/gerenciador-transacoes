@@ -24,10 +24,10 @@ jobs:
       - name: 🚀 Subir containers
         run: docker compose -f docker-compose.yml up -d
 
-      - name: 📄 Configurar Permissões e .env  
-        run: |
-          docker exec -u root laravel-app chmod 777 /var/www/html/.env
-          docker exec -u root laravel-app chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+     - name: 📄 Configurar .env e permissões
+      run: |
+        docker exec laravel-app cp .env.example .env
+        docker exec -u root laravel-app chmod -R 777 storage bootstrap/cache
 
       - name: ⏳ Esperar MySQL ficar pronto
         run: |
